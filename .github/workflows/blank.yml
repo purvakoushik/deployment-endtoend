@@ -5,6 +5,16 @@ name: CI
 # Controls when the workflow will run
 on:
   workflow_dispatch:
+    inputs:
+      ClientID:
+        description: 'Client ID'
+        required: true
+      ClientSecret:
+        description: 'Client Secret'
+        required: true
+      TenantID:
+        description: 'Tenant ID'
+        required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
