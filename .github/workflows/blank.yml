@@ -184,21 +184,24 @@ jobs:
         with:
           name: publishing-profiles
 
-      - name: Run PS Commands
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            $profile1 = Import-Clixml -Path "profile1.xml"
-            $profile2 = Import-Clixml -Path "profile2.xml"
-          azPSVersion: "latest"
+      # - name: Run PS Commands
+      #   uses: azure/powershell@v1
+      #   with:
+      #     inlineScript: |
+      #       $profile1 = Import-Clixml -Path "profile1.xml"
+      #       $profile2 = Import-Clixml -Path "profile2.xml"
+      #     azPSVersion: "latest"
 
-      - name: Trigger another workflow
+      - name: Use publishing profiles
         run: |
+          profile1=$(cat profile1.xml)
+          profile2=$(cat profile2.xml)
+
+          body='{"ref":"main","inputs":{"AutoparkFunctionality":"${profile1}","AutoparkScheduler":"${profile2}"}}'
+          
           curl --location 'https://api.github.com/repos/<repo-owner>/<repo-name>/actions/workflows/<workflow-name>/dispatches' \
           --header 'Accept: application/vnd.github+json' \
           --header 'Authorization: Bearer ${{ secrets.GITHUB_PAT_TOKEN }}' \
           --header 'X-GitHub-Api-Version: 2022-11-28' \
           --header 'Content-Type: application/json' \
-          --data '{"ref":"main","inputs":{"AutoparkFunctionality":"${profile1}","AutoparkScheduler":"${profile2}"}}'
-
-      
+          --data '${body}'
