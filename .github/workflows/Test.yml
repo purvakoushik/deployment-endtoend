@@ -86,3 +86,11 @@ jobs:
           echo "ARM_SUBSCRIPTION_ID=${{ inputs.SubscriptionID }}" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=${{ inputs.TenantID }}" >> $GITHUB_ENV
           echo "RESOURCE_GROUP =${{ inputs.ResourceGroup }}" >> $GITHUB_ENV
+
+      - name: env variables in another job
+        run: |
+          echo "${{ env.ARM_CLIENT_ID }}"
+          echo "${{ env.ARM_CLIENT_SECRET }}"
+          echo "${{ env.ARM_SUBSCRIPTION_ID }}"
+          echo "${{ env.ARM_TENANT_ID }}"
+          echo "${{ env.RESOURCE_GROUP }}"
