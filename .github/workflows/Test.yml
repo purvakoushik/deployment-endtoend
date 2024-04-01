@@ -1,0 +1,88 @@
+# This is a basic workflow to help you get started with Actions
+name: Infrastructure deploy pipeline
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      ClientID:
+        description: 'Client ID'
+        required: true
+      ClientSecret:
+        description: 'Client Secret'
+        required: true
+      TenantID:
+        description: 'Tenant ID'
+        required: true
+      SubscriptionID:
+        description: 'Subscription ID'
+        required: true
+      ResourceGroup:
+        description: 'Resource Group'
+        required: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Terraform Scan Install
+      #   run: curl --location https://github.com/accurics/terrascan/releases/download/v1.9.0/terrascan_1.9.0_Linux_x86_64.tar.gz --output terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && install terrascan /usr/local/bin && rm terrascan && terrascan     
+                     
+      # - name: Run Terrascan Scan
+      #   run: terrascan scan -t azure
+      #   continue-on-error: true
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+          echo ${{ inputs.ClientID }}
+          echo ${{ inputs.ClientSecret }}
+          echo ${{ inputs.TenantID }}
+          echo ${{ inputs.ResourceGroup }}
+          echo ${{ inputs.SubscriptionID }}
+
+      - name: "Setting Environment"
+        run: |
+          echo "ARM_CLIENT_ID=${{ inputs.ClientID }}" >> $GITHUB_ENV
+          echo "ARM_CLIENT_SECRET=${{ inputs.ClientSecret }}" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=${{ inputs.SubscriptionID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ inputs.TenantID }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP =${{ inputs.ResourceGroup }}" >> $GITHUB_ENV
+          echo "TFSTATE_RG=test-rg-storage-account" >> $GITHUB_ENV
+          echo "TFSTATE_STORAGE_ACCOUNT=test-storage-account" >> $GITHUB_ENV
+          echo "TFSTATE_CONTAINER=test-storage-account-tfstate" >> $GITHUB_ENV
+
+      - name: "Printing env variables"
+        run: |
+          echo "${{ env.ARM_CLIENT_ID }}"
+          echo "${{ env.ARM_CLIENT_SECRET }}"
+          echo "${{ env.ARM_SUBSCRIPTION_ID }}"
+          echo "${{ env.ARM_TENANT_ID }}"
+          echo "${{ env.RESOURCE_GROUP }}"
+
+  another_job:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Printing inputs again
+        run: |
+          echo "ARM_CLIENT_ID=${{ inputs.ClientID }}" >> $GITHUB_ENV
+          echo "ARM_CLIENT_SECRET=${{ inputs.ClientSecret }}" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=${{ inputs.SubscriptionID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ inputs.TenantID }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP =${{ inputs.ResourceGroup }}" >> $GITHUB_ENV
