@@ -1,1 +1,181 @@
+name: "Autopark_Deployment"
 
+on:
+  workflow_dispatch:
+    inputs:
+      PP_functionality:
+        description: 'PP_functionality'
+        required: true
+      PP_scheduler:
+        description: 'PP_scheduler'
+        required: true
+
+jobs:
+  sonarqube-scan:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        with:
+          args: >
+            -Dsonar.projectKey=Autopark-dev-environment-scan
+            -Dsonar.projectName=Autopark_1.1_release_dev_scan
+            -Dsonar.qualitygate.wait=false
+        env:
+          SONAR_TOKEN: ${{ secrets.CEQ_REN_SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.CEQ_SONAR_URL }}
+
+  # *************************************** The Job steps to deploy autopark-functionality code ***********************************************
+
+  ren-adhoc-startstop:
+    runs-on: ubuntu-latest
+    needs: sonarqube-scan
+
+    env:
+      GO_VERSION: "1.20" # set this to the go version to use
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Set up Go version
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+  ren-adhoc-startstop-build:
+    runs-on: ubuntu-latest
+    needs: ren-adhoc-startstop
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: make a go build
+        run: |
+          export GOOS=windows
+          export GOARCH=amd64
+          cd autopark-functionality
+          ls
+          go build -o autopark_1.1_functionality.exe .
+          ls
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: autopark-functionality
+          path: "${{ github.workspace }}/autopark-functionality/autopark_1.1_functionality.exe"
+
+  ren-adhoc-startstop-deploy:
+    runs-on: ubuntu-latest
+    needs: ren-adhoc-startstop-build
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: autopark-functionality
+          path: "${{ github.workspace }}/autopark-functionality/"
+
+      - name: "Deploy to Azure Functions"
+        uses: Azure/functions-action@v1
+        id: deploy-to-function
+        with:
+          app-name: "ren-adhoc-startstop"
+          package: "${{ github.workspace }}/autopark-functionality/"
+          publish-profile: ${{ secrets.FUNCTION_APP_REN_ADHOC_STARTSTOP_PUBLISH_PROFILE }}
+          slot-name: "production"
+
+  # *************************************** The Job steps to deploy autopark-scheduler code ***********************************************
+
+  autopark-scheduler:
+    runs-on: ubuntu-latest
+    needs: sonarqube-scan
+    env:
+      GO_VERSION: "1.20" # set this to the go version to use
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go version
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+  autopark-scheduler-build:
+    runs-on: ubuntu-latest
+    needs: autopark-scheduler
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: make a go build
+        run: |
+          export GOOS=windows
+          export GOARCH=amd64
+          cd autopark-scheduler
+          ls
+          go build -o autopark_1.1_scheduler.exe .
+          ls
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: autopark-scheduler
+          path: "${{ github.workspace }}/autopark-scheduler/autopark_1.1_scheduler.exe"
+
+  autopark-scheduler-deploy:
+    runs-on: ubuntu-latest
+    needs: autopark-scheduler-build
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: autopark-scheduler
+          path: "${{ github.workspace }}/autopark-scheduler/"
+
+      - name: "Deploy to Azure Functions"
+        uses: Azure/functions-action@v1
+        id: deploy-to-function
+        with:
+          app-name: "ren-schedule-start"
+          package: "${{ github.workspace }}/autopark-scheduler/"
+          publish-profile: ${{ secrets.FUNCTION_APP_REN_SCHEDULE_START_PUBLISH_PROFILE }}
+          slot-name: "production"
