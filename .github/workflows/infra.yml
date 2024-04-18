@@ -85,7 +85,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan 
-        run: terraform plan -var "resource_group_name=$RESOURCE_GROUP" -input=false
+        run: terraform plan -input=false
 
   # terraformApply:
   #   name: 'terraformApply'
