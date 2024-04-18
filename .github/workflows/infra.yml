@@ -87,50 +87,51 @@ jobs:
       - name: Terraform Plan 
         run: terraform plan -input=false
 
-  # terraformApply:
-  #   name: 'terraformApply'
-  #   runs-on: ubuntu-latest
-  #   needs: ["terraform"]
+  terraformApply:
+    name: 'terraformApply'
+    runs-on: ubuntu-latest
+    needs: ["terraform"]
 
-  #   defaults:
-  #     run:
-  #       shell: bash
+    defaults:
+      run:
+        shell: bash
 
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  #     - name: "Setting Environment"
-  #       run: |
-  #         echo "ARM_CLIENT_ID=${{ inputs.ClientID }}" >> $GITHUB_ENV
-  #         echo "ARM_CLIENT_SECRET=${{ inputs.ClientSecret }}" >> $GITHUB_ENV
-  #         echo "ARM_SUBSCRIPTION_ID=${{ inputs.SubscriptionID }}" >> $GITHUB_ENV
-  #         echo "ARM_TENANT_ID=${{ inputs.TenantID }}" >> $GITHUB_ENV
-  #         echo "RESOURCE_GROUP =${{ inputs.ResourceGroup }}" >> $GITHUB_ENV
-  #         echo "TFSTATE_RG=test-rg-storage-account" >> $GITHUB_ENV
-  #         echo "TFSTATE_STORAGE_ACCOUNT=test-storage-account" >> $GITHUB_ENV
-  #         echo "TFSTATE_CONTAINER=test-storage-account-tfstate" >> $GITHUB_ENV
+      - name: "Setting Environment"
+        run: |
+          echo "ARM_CLIENT_ID=${{ inputs.ClientID }}" >> $GITHUB_ENV
+          echo "ARM_CLIENT_SECRET=${{ inputs.ClientSecret }}" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=${{ inputs.SubscriptionID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ inputs.TenantID }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP =${{ inputs.ResourceGroup }}" >> $GITHUB_ENV
+          echo "TFSTATE_RG=koushikpurva-RG" >> $GITHUB_ENV
+          echo "TFSTATE_STORAGE_ACCOUNT=goaad" >> $GITHUB_ENV
+          echo "TFSTATE_CONTAINER=terracontainer" >> $GITHUB_ENV
 
-      # - name: Login to azure
-      #   uses: azure/login@v1
-      #   with:
-      #      creds: '{"clientId":"${{ env.ARM_CLIENT_ID }}","clientSecret":"${{ env.ARM_CLIENT_SECRET }}","subscriptionId":"${{ env.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ env.ARM_TENANT_ID }}"}'
-      #      enable-AzPSSession: true
+      - name: Login to azure
+        uses: azure/login@v1
+        with:
+           creds: '{"clientId":"${{ env.ARM_CLIENT_ID }}","clientSecret":"${{ env.ARM_CLIENT_SECRET }}","subscriptionId":"${{ env.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ env.ARM_TENANT_ID }}"}'
+           enable-AzPSSession: true
 
-  #     - name: Setup Terraform
-  #       uses: hashicorp/setup-terraform@v2
-  #       with:
-  #         terraform_version: 1.5.5
-  #         terraform_wrapper: false
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.5
+          terraform_wrapper: false
 
-  #     - name: Terraform Init 
-  #       run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="key=random-key/name.tfstate" -input=false
+      - name: Terraform Init 
+        run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="key=random-key/name.tfstate" -input=false
       
-  #     - name: Terraform Apply 
-  #       run: terraform apply -auto-approve -var "resource_group_name=$RESOURCE_GROUP" -input=false
+      - name: Terraform Apply 
+        # run: terraform apply -auto-approve -var "resource_group_name=$RESOURCE_GROUP" -input=false
+        run: terraform apply -auto-approve -input=false
 
-  #     - name: Terraform Output 
-  #       run: vm=$(terraform output) && echo $vm > terraform-output1.ps1  &&  cat terraform-output1.ps1
+      # - name: Terraform Output 
+      #   run: vm=$(terraform output) && echo $vm > terraform-output1.ps1  &&  cat terraform-output1.ps1
 
   # fetchPublishProfile:
   #   name: 'fetchPublishProfile'
