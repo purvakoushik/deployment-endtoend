@@ -2,6 +2,11 @@ provider "azurerm" {
   features {}
 }
 
+terraform {
+  backend "azurerm" {
+  }
+}
+
 resource "azurerm_service_plan" "example" {
   name                = "example-app-service-plan"
   resource_group_name = "koushikpurva-RG"
