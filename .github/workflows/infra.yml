@@ -64,6 +64,12 @@ jobs:
           echo "TFSTATE_STORAGE_ACCOUNT=goaad" >> $GITHUB_ENV
           echo "TFSTATE_CONTAINER=terracontainer" >> $GITHUB_ENV
 
+      - name: Login to azure
+        uses: azure/login@v1
+        with:
+           creds: '{"clientId":"${{ env.ARM_CLIENT_ID }}","clientSecret":"${{ env.ARM_CLIENT_SECRET }}","subscriptionId":"${{ env.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ env.ARM_TENANT_ID }}"}'
+           enable-AzPSSession: true
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -105,11 +111,11 @@ jobs:
   #         echo "TFSTATE_STORAGE_ACCOUNT=test-storage-account" >> $GITHUB_ENV
   #         echo "TFSTATE_CONTAINER=test-storage-account-tfstate" >> $GITHUB_ENV
 
-  #     - name: Login to azure
-  #       uses: azure/login@v1
-  #       with:
-  #          creds: '{"clientId":"${{ env.ARM_CLIENT_ID }}","clientSecret":"${{ env.ARM_CLIENT_SECRET }}","subscriptionId":"${{ env.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ env.ARM_TENANT_ID }}"}'
-  #          enable-AzPSSession: true
+      # - name: Login to azure
+      #   uses: azure/login@v1
+      #   with:
+      #      creds: '{"clientId":"${{ env.ARM_CLIENT_ID }}","clientSecret":"${{ env.ARM_CLIENT_SECRET }}","subscriptionId":"${{ env.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ env.ARM_TENANT_ID }}"}'
+      #      enable-AzPSSession: true
 
   #     - name: Setup Terraform
   #       uses: hashicorp/setup-terraform@v2
