@@ -5,6 +5,9 @@ name: Infrastructure deploy pipeline
 on:
   workflow_dispatch:
     inputs:
+      ClientName:
+        description: 'Client Name'
+        required: true
       ClientID:
         description: 'Client ID'
         required: true
@@ -52,6 +55,7 @@ jobs:
           echo ${{ inputs.TenantID }}
           echo ${{ inputs.ResourceGroup }}
           echo ${{ inputs.SubscriptionID }}
+          echo ${{ inputs.ClientName }}
 
       - name: "Setting Environment"
         run: |
@@ -63,6 +67,7 @@ jobs:
           echo "TFSTATE_RG=koushikpurva-RG" >> $GITHUB_ENV
           echo "TFSTATE_STORAGE_ACCOUNT=goaad" >> $GITHUB_ENV
           echo "TFSTATE_CONTAINER=terracontainer" >> $GITHUB_ENV
+          echo "TFSTATE_KEY=${{ inputs.ClientName }}" >> $GITHUB_ENV
 
       - name: Login to azure
         uses: azure/login@v1
@@ -77,11 +82,9 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init 
-        run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="key=random-key/name.tfstate" -input=false
+        run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="$TFSTATE_KEY=.tfstate" -input=false
       
       - name: Terraform validate
-        # env:
-        #   TF_VAR_file: "${{ env.ENV }}/terraform.tfvars"
         run: terraform validate
 
       - name: Terraform Plan 
@@ -110,6 +113,7 @@ jobs:
           echo "TFSTATE_RG=koushikpurva-RG" >> $GITHUB_ENV
           echo "TFSTATE_STORAGE_ACCOUNT=goaad" >> $GITHUB_ENV
           echo "TFSTATE_CONTAINER=terracontainer" >> $GITHUB_ENV
+          echo "TFSTATE_KEY=${{ inputs.ClientName }}" >> $GITHUB_ENV
 
       - name: Login to azure
         uses: azure/login@v1
@@ -124,7 +128,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init 
-        run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="key=random-key/name.tfstate" -input=false
+        run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="$TFSTATE_KEY.tfstate" -input=false
       
       - name: Terraform Apply 
         # run: terraform apply -auto-approve -var "resource_group_name=$RESOURCE_GROUP" -input=false
