@@ -82,7 +82,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init 
-        run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="$TFSTATE_KEY=.tfstate" -input=false
+        run: terraform init -reconfigure -force-copy -backend-config="resource_group_name=$TFSTATE_RG" -backend-config="storage_account_name=$TFSTATE_STORAGE_ACCOUNT" -backend-config="container_name=$TFSTATE_CONTAINER" -backend-config="$TFSTATE_KEY.tfstate" -input=false
       
       - name: Terraform validate
         run: terraform validate
