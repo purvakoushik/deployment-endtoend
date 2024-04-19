@@ -88,7 +88,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan 
-        run: terraform plan -input=false
+        run: terraform plan -var="resource_group_name=$RESOURCE_GROUP" -input=false
 
   terraformApply:
     name: 'terraformApply'
@@ -132,7 +132,7 @@ jobs:
       
       - name: Terraform Apply 
         # run: terraform apply -auto-approve -var "resource_group_name=$RESOURCE_GROUP" -input=false
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply -auto-approve -var="resource_group_name=$RESOURCE_GROUP" -input=false
 
       # - name: Terraform Output 
       #   run: vm=$(terraform output) && echo $vm > terraform-output1.ps1  &&  cat terraform-output1.ps1
