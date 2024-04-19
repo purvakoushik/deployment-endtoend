@@ -111,7 +111,7 @@ jobs:
           echo "ARM_CLIENT_SECRET=${{ inputs.ClientSecret }}" >> $GITHUB_ENV
           echo "ARM_SUBSCRIPTION_ID=${{ inputs.SubscriptionID }}" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=${{ inputs.TenantID }}" >> $GITHUB_ENV
-          echo "RESOURCE_GROUP =${{ inputs.ResourceGroup }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP=${{ inputs.ResourceGroup }}" >> $GITHUB_ENV
           echo "TFSTATE_RG=koushikpurva-RG" >> $GITHUB_ENV
           echo "TFSTATE_STORAGE_ACCOUNT=goaad" >> $GITHUB_ENV
           echo "TFSTATE_CONTAINER=terracontainer" >> $GITHUB_ENV
