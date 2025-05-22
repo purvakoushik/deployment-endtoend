@@ -1,32 +1,21 @@
-name: Sequential Matrix Workflow
+name: Matrix Sequential Execution
 
 on:
   workflow_dispatch:
-    inputs:
-      apps:
-        description: 'Comma-separated list of application names'
-        required: true
-        default: 'app1,app2,app3,app4,app5'
 
 jobs:
-  set-matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - id: set-matrix
-        run: |
-          apps=(${GITHUB_EVENT_INPUTS_APPS//,/ })
-          matrix_json=$(jq -n --argjson apps "$(printf '%s\n' "${apps[@]}" | jq -R . | jq -s .)" '{app: $apps}')
-          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
-
-  job1:
-    needs: set-matrix
+  run-apps:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: ${{ fromJson(needs.set-matrix.outputs.matrix).app }}
-      max-parallel: 1
+        app: [app1, app2, app3, app4, app5]
+      max-parallel: 1  # 👈 This ensures jobs run one-by-one
     steps:
-      - name: Run for ${{ matrix.app }}
-        run: echo "Running tasks for ${{ matrix.app }}"
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run matrix app
+        run: |
+          echo "Running ${{ matrix.app }}"
+          # Simulate app logic
+          ./run-${{ matrix.app }}.sh || echo "${{ matrix.app }} failed"
