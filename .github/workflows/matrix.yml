@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         app: ${{ fromJson(needs.set-matrix.outputs.matrix).app }}
-        max-parallel: 1
+      max-parallel: 1
     steps:
       - name: Run for ${{ matrix.app }}
         run: echo "Running tasks for ${{ matrix.app }}"
