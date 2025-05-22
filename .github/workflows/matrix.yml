@@ -14,22 +14,26 @@ jobs:
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
     steps:
-      - name: Parse input and create JSON array
+      - name: Convert comma-separated input to matrix JSON
         id: set
         run: |
-          echo "Input apps: ${{ github.event.inputs.apps }}"
-          apps_json=$(echo '${{ github.event.inputs.apps }}' | jq -R 'split(",")')
-          echo "matrix={\"app\": $apps_json}" >> $GITHUB_OUTPUT
+          APPS="${{ github.event.inputs.apps }}"
+          echo "Input: $APPS"
+          # Convert to JSON array
+          MATRIX_JSON=$(echo "$APPS" | tr ',' '\n' | jq -R . | jq -s '{app: .}')
+          echo "Parsed matrix: $MATRIX_JSON"
+          # Use printf to avoid trailing newline which breaks set-output
+          echo "matrix=${MATRIX_JSON}" >> $GITHUB_OUTPUT
 
   run-apps:
     needs: set-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.set-matrix.outputs.matrix) }}
-      max-parallel: 1  # Force sequential execution
+      max-parallel: 1
     steps:
       - name: Run ${{ matrix.app }}
         run: |
           echo "Running application: ${{ matrix.app }}"
-          # Simulate some command
-          ./run-${{ matrix.app }}.sh || echo "${{ matrix.app }} failed"
+          # Replace this with your actual script or command
+          echo "./run-${{ matrix.app }}.sh"
