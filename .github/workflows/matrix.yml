@@ -18,8 +18,14 @@ jobs:
         id: set-matrix
         run: |
           apps="${{ github.event.inputs.apps }}"
-          matrix=$(echo "$apps" | jq -cR 'split(",")')
+          matrix="[\"$(echo "$apps" | sed 's/ //g' | sed 's/,/","/g')\"]"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          
+        # run: |
+        # Remove spaces, wrap each app in double quotes, join with commas, and wrap in brackets
+        #   apps="${{ github.event.inputs.apps }}"
+        #   matrix=$(echo "$apps" | jq -cR 'split(",")')
+        #   echo "matrix=$matrix" >> $GITHUB_OUTPUT
         shell: bash
 
   run-apps:
