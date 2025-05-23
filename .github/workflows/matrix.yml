@@ -20,6 +20,7 @@ jobs:
           apps="${{ github.event.inputs.apps }}"
           matrix=$(echo "$apps" | jq -R 'split(",")')
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
+        shell: bash
 
   run-apps:
     needs: set-matrix
