@@ -18,7 +18,7 @@ jobs:
         id: set-matrix
         run: |
           apps="${{ github.event.inputs.apps }}"
-          matrix=$(echo "$apps" | jq -R 'split(",")')
+          matrix=$(echo "$apps" | jq -cR 'split(",")')
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
         shell: bash
 
