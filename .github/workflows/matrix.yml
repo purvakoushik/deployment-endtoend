@@ -2,14 +2,32 @@ name: Matrix Sequential Execution
 
 on:
   workflow_dispatch:
+    inputs:
+      apps:
+        description: 'Comma-separated list of apps'
+        required: true
+        default: 'app1,app2,app3,app4,app5'
 
 jobs:
+  set-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix from input
+        id: set-matrix
+        run: |
+          apps="${{ github.event.inputs.apps }}"
+          matrix=$(echo "$apps" | jq -R 'split(",")')
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
   run-apps:
+    needs: set-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [app1, app2, app3, app4, app5]
-      max-parallel: 1  # 👈 This ensures jobs run one-by-one
+        app: ${{ fromJson(needs.set-matrix.outputs.matrix) }}
+      max-parallel: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -17,5 +35,4 @@ jobs:
       - name: Run matrix app
         run: |
           echo "Running ${{ matrix.app }}"
-          # Simulate app logic
           ./run-${{ matrix.app }}.sh || echo "${{ matrix.app }} failed"
